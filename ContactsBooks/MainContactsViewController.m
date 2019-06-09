@@ -19,11 +19,13 @@
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) CNContactStore* adressBook;
-@property (strong, nonatomic) NSMutableArray* groupOfContacts;
+@property (strong, nonatomic) NSArray* groupOfContacts;
 @property (strong, nonatomic) NSMutableArray* phoneNumbersArray;
 @property (strong, nonatomic) NSMutableArray* sectionsArray;
 @property (strong, nonatomic) NSDictionary* contactsById;
 @property (strong, nonatomic) NSMutableArray* sectionsExpendedState;
+@property (strong, nonatomic) NSSet* russianAlphabet;
+
 @end
 
 static NSString* cellIdentifier = @"Cell";
@@ -50,6 +52,8 @@ static NSString* headerIdentifier = @"Header";
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
+    self.russianAlphabet = [NSSet setWithObjects:@"а",@"б",@"в",@"г",@"д",@"е",@"ё",@"ж",@"з",@"и",@"й",@"к",@"л",@"м",@"н",@"о",@"п",@"р",@"с",@"т",@"у",@"ф",@"х",@"ц",@"ч",@"щ",@"ъ",@"ы", @"ь",@"э",@"ю", @"я",nil];
+    
     self.groupOfContacts = [NSMutableArray array];
     UINib* nib = [UINib nibWithNibName:@"CustomTableViewCell" bundle:nil];
     [self.tableView registerNib:nib forCellReuseIdentifier:cellIdentifier];
@@ -57,7 +61,7 @@ static NSString* headerIdentifier = @"Header";
     CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
     
     if (status == CNAuthorizationStatusDenied || status == CNAuthorizationStatusRestricted) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Access to contacts." message:@"This app requires access to contacts because ..." preferredStyle:UIAlertControllerStyleActionSheet];
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Access to contacts." message:@"This app requires access to contacts." preferredStyle:UIAlertControllerStyleActionSheet];
         [alert addAction:[UIAlertAction actionWithTitle:@"Go to Settings" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
         }]];
@@ -73,22 +77,26 @@ static NSString* headerIdentifier = @"Header";
     NSString* currentLetter = nil;
     
     for (CNContact* contact in self.groupOfContacts) {
-        NSString* family = contact.familyName;
+
+        NSString* groupName = contact.familyName.length == 0 ? contact.givenName : contact.familyName;
         
-        NSString* firstLetter = [family substringToIndex:1];
+        NSString* firstLetter = [groupName substringToIndex:1];
         
         SectionName* section = nil;
         
-        if (![currentLetter isEqualToString:firstLetter]) {
+        if ([currentLetter isEqualToString:firstLetter]) {
+            section = [self.sectionsArray lastObject];
+        } else {
             section = [[SectionName alloc] init];
-            section.sectionName = firstLetter;
+            BOOL isValidName =
+            [self.russianAlphabet containsObject:[firstLetter lowercaseString]] || [firstLetter rangeOfCharacterFromSet:[NSCharacterSet letterCharacterSet]].location != NSNotFound;
+            section.sectionName = isValidName ? firstLetter : @"#";
             section.items = [NSMutableArray array];
             currentLetter = firstLetter;
             [self.sectionsArray addObject:section];
-        } else {
-            section = [self.sectionsArray lastObject];
         }
-        ContactTableItem* contactItem = [[ContactTableItem alloc] initWith:contact.identifier name:[NSString stringWithFormat:@"%@ %@", family, contact.givenName]];
+        
+        ContactTableItem* contactItem = [[ContactTableItem alloc] initWith:contact.identifier name:[NSString stringWithFormat:@"%@ %@", contact.familyName, contact.givenName]];
         [section.items addObject:contactItem];
     }
     
@@ -120,12 +128,41 @@ static NSString* headerIdentifier = @"Header";
                                                      error:nil
                                                 usingBlock:^(CNContact * _Nonnull contact, BOOL * _Nonnull stop) {
                                                     [allContact addObject:contact];
-                                                    [allContact sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"lastName" ascending:YES]]];
+                                                    
                                                 }];
-        
+
         self.contactsById = [NSDictionary dictionaryWithObjects:allContact
                                                         forKeys:[allContact valueForKey:@"identifier"]];
-        self.groupOfContacts = allContact;
+        
+        self.groupOfContacts = [allContact sortedArrayUsingComparator:^NSComparisonResult(CNContact* obj1, CNContact* obj2) {
+            
+            NSString* str1 = !(obj1.familyName.length == 0) ? obj1.familyName : obj1.givenName;
+            NSString* str2 = !(obj2.familyName.length == 0) ? obj2.familyName : obj2.givenName;
+            
+            NSString *s1 = [str1 substringToIndex:1];
+            NSString *s2 = [str2 substringToIndex:1];
+            BOOL b1 = [s1 canBeConvertedToEncoding:NSISOLatin1StringEncoding];
+            BOOL b2 = [s2 canBeConvertedToEncoding:NSISOLatin1StringEncoding];
+            
+            if ((b1 == b2) && b1) {
+                NSRange r1 = [s1 rangeOfCharacterFromSet:[NSCharacterSet decimalDigitCharacterSet]];
+                NSRange r2 = [s2 rangeOfCharacterFromSet:[NSCharacterSet decimalDigitCharacterSet]];
+                if (r1.location == r2.location ) {
+                    return [str1 compare:str2 options:NSDiacriticInsensitiveSearch|NSCaseInsensitiveSearch];
+                } else {
+                    if ([s1 rangeOfCharacterFromSet:[NSCharacterSet decimalDigitCharacterSet]].location == NSNotFound) {
+                        return NSOrderedAscending;
+                    }
+                    return NSOrderedDescending;
+                }
+            } else if((b1 == b2) && !b1){
+                return [str1 compare:str2 options:NSDiacriticInsensitiveSearch|NSCaseInsensitiveSearch];
+            } else {
+                if (b1) return NSOrderedDescending;
+                return NSOrderedAscending;
+            }
+            
+        }];;
     }
 }
 
@@ -159,6 +196,8 @@ static NSString* headerIdentifier = @"Header";
     
     SectionName* sec = [self.sectionsArray objectAtIndex:section];
     CustomHeaderView* customHeader = [tableView dequeueReusableHeaderFooterViewWithIdentifier:headerIdentifier];
+    
+    
     customHeader.textLabel.text = [NSString stringWithFormat:@"%@  contacts:%@", sec.sectionName, @([sec.items count])];
     customHeader.section = section;
     customHeader.listener = self;
@@ -229,6 +268,7 @@ static NSString* headerIdentifier = @"Header";
     UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
                                                           handler:^(UIAlertAction * action) {}];
     
+
     [alert addAction:defaultAction];
     [self presentViewController:alert animated:YES completion:nil];
     
@@ -272,8 +312,13 @@ static NSString* headerIdentifier = @"Header";
     CNContact* contact = [self.contactsById objectForKey:contactItem.identifier];
     
     UIImage* photo = contact.imageDataAvailable ? [[UIImage alloc] initWithData:contact.imageData] : nil;
-    ContactInfoViewController* c = [[ContactInfoViewController alloc] initWith:contact.givenName lastName:contact.familyName phone:contact.phoneNumbers image:photo];
-    [self.navigationController pushViewController:c animated:YES];
+    
+    ContactInfoViewController* contactInfo = [[ContactInfoViewController alloc] initWithNibName:@"ContactInfoViewController" bundle:nil];
+    contactInfo.lastName = contact.familyName;
+    contactInfo.firstName = contact.givenName;
+    contactInfo.phoneNumbers = contact.phoneNumbers;
+    contactInfo.image = photo;
+    [self.navigationController pushViewController:contactInfo animated:YES];
 }
 
 

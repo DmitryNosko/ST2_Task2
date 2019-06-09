@@ -15,6 +15,4 @@
 @property (strong, nonatomic) NSArray* phoneNumbers;
 @property (strong, nonatomic) UIImage* image;
 
-- (instancetype)initWith:(NSString*) firstName lastName:(NSString*) lastName phone:(NSArray*) phone image:(UIImage*) image;
-
 @end
