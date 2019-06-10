@@ -18,6 +18,6 @@
 @property (weak, nonatomic) id<CustomTableViewCellListener> listener;
 
 @property (weak, nonatomic) IBOutlet UILabel *infLabel;
-@property (weak, nonatomic) IBOutlet UIButton *infoButton;
+@property (weak, nonatomic) IBOutlet UIButton *infoBut;
 
 @end

@@ -10,7 +10,6 @@
 
 @interface ContactInfoViewController () <UITableViewDataSource, UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-
 @end
 
 static NSString* identifier = @"Cell";
@@ -36,15 +35,28 @@ static NSString* identifier = @"Cell";
     self.view.backgroundColor = [UIColor whiteColor];
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
+    self.tableView.userInteractionEnabled = NO;
+    self.navigationController.navigationBar.topItem.title = @"";
     
+    [self setCustomNavigationBackButton];
     if ([self.phoneNumbers count] <= 4) {
         self.tableView.scrollEnabled = NO;
     }
     
 }
 
-#pragma mark - UITableViewDataSource
+#pragma mark - CustomBackButton
 
+- (void)setCustomNavigationBackButton
+{
+    UIImage *backBtn = [UIImage imageNamed:@"arrow_left"];
+    backBtn = [backBtn imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    [self.navigationItem setBackBarButtonItem:[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil]];
+    self.navigationController.navigationBar.backIndicatorImage = backBtn;
+    self.navigationController.navigationBar.backIndicatorTransitionMaskImage = backBtn;
+}
+
+#pragma mark - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
@@ -84,32 +96,68 @@ static NSString* identifier = @"Cell";
     UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.bounds.size.width, 300)];
     headerView.backgroundColor = [UIColor whiteColor];
     
-    UIImageView* image = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMidX(headerView.bounds) - 75, CGRectGetMidY(headerView.bounds) - 75, 150, 150)];
-    [image setImage:self.image];
-    [headerView addSubview:image];
+    headerView.layer.borderWidth = 0.5f;
+    headerView.layer.borderColor = [UIColor colorWithRed:(223/255.0) green:(223/255.0) blue:(223/255.0) alpha:1].CGColor;
     
-    UILabel* fullName = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMidX(headerView.bounds) - 50, CGRectGetMidY(headerView.bounds) + 100, 300, 40)];
-    fullName.text = [NSString stringWithFormat:@"%@ %@", self.lastName, self.firstName];
+    UIImageView* image = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMidX(headerView.bounds) - 75, CGRectGetMidY(headerView.bounds) - 75, 150, 150)];
+    [headerView addSubview:image];
+    image.self.image = [self circularScaleAndCropImage:self.image frame:CGRectMake(0, 0, 150, 150)];
+    
+    UILabel* fullName = [[UILabel alloc] init];
     [headerView addSubview:fullName];
+    
+    fullName.font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:23];
+    fullName.text = [NSString stringWithFormat:@"%@ %@", self.lastName, self.firstName];
+    [fullName setTextAlignment:NSTextAlignmentCenter];
+    
+    fullName.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+                                              [fullName.centerXAnchor constraintEqualToAnchor:headerView.centerXAnchor],
+                                              [fullName.centerYAnchor constraintEqualToAnchor:headerView.centerYAnchor constant:+100],
+                                              [fullName.heightAnchor constraintEqualToConstant:35],
+                                              [fullName.widthAnchor constraintEqualToConstant:300]
+                                              ]];
+    
+    
+
     return headerView;
 }
 
-//- (UIImage*) getAvatar {
-//    CGSize size = CGSizeMake(150, 150);
-//
-//    UIGraphicsBeginImageContextWithOptions(size, NO, [UIScreen mainScreen].scale);
-//
-//    CGContextRef context = UIGraphicsGetCurrentContext();
-//
-//    UIBezierPath* path = [UIBezierPath bezierPathWithArcCenter:CGPointMake(size.width / 2, size.height / 3) radius:23 startAngle:0 endAngle:2 * M_PI clockwise:YES];
-//    CGContextAddPath(context, path.CGPath);
-//    CGContextDrawPath(context, kCGPathFill);
-//    [self.image drawInRect:CGRectMake(size.width / 2,size.height / 2, 150, 150)];
-//    UIImage* image = UIGraphicsGetImageFromCurrentImageContext();
-//
-//    UIGraphicsEndImageContext();
-//    return image;
-//}
+#pragma mark - DrawAvatar
+
+- (UIImage*)circularScaleAndCropImage:(UIImage*)image frame:(CGRect)frame {
+
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(frame.size.width, frame.size.height), NO, 0.0);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGFloat imageWidth = image.size.width;
+    CGFloat imageHeight = image.size.height;
+    CGFloat rectWidth = frame.size.width;
+    CGFloat rectHeight = frame.size.height;
+    
+    CGFloat scaleFactorX = rectWidth/imageWidth;
+    CGFloat scaleFactorY = rectHeight/imageHeight;
+    
+    CGFloat imageCentreX = rectWidth/2;
+    CGFloat imageCentreY = rectHeight/2;
+    
+    CGFloat radius = rectWidth/2;
+    CGContextBeginPath (context);
+    CGContextAddArc (context, imageCentreX, imageCentreY, radius, 0, 2*M_PI, 0);
+    CGContextClosePath (context);
+    CGContextClip (context);
+    
+    CGContextScaleCTM (context, scaleFactorX, scaleFactorY);
+    
+    CGRect myRect = CGRectMake(0, 0, imageWidth, imageHeight);
+    [image drawInRect:myRect];
+    
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+}
+
 
 @end
 

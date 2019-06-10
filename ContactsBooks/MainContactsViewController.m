@@ -26,6 +26,7 @@
 @property (strong, nonatomic) NSMutableArray* sectionsExpendedState;
 @property (strong, nonatomic) NSSet* russianAlphabet;
 
+
 @end
 
 static NSString* cellIdentifier = @"Cell";
@@ -51,6 +52,8 @@ static NSString* headerIdentifier = @"Header";
     self.title = @"Contacts";
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
+    
+   
     
     self.russianAlphabet = [NSSet setWithObjects:@"а",@"б",@"в",@"г",@"д",@"е",@"ё",@"ж",@"з",@"и",@"й",@"к",@"л",@"м",@"н",@"о",@"п",@"р",@"с",@"т",@"у",@"ф",@"х",@"ц",@"ч",@"щ",@"ъ",@"ы", @"ь",@"э",@"ю", @"я",nil];
     
@@ -107,6 +110,11 @@ static NSString* headerIdentifier = @"Header";
         [self.sectionsExpendedState addObject:@NO];
     }
     
+}
+
+- (void) viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    self.title = @"Contacts";
 }
 
 #pragma mark - Contacts
@@ -196,9 +204,45 @@ static NSString* headerIdentifier = @"Header";
     
     SectionName* sec = [self.sectionsArray objectAtIndex:section];
     CustomHeaderView* customHeader = [tableView dequeueReusableHeaderFooterViewWithIdentifier:headerIdentifier];
+    customHeader.layer.borderWidth = 0.5f;
+    customHeader.layer.borderColor = [UIColor colorWithRed:(223/255.0) green:(223/255.0) blue:(223/255.0) alpha:1].CGColor;
+    customHeader.expandButon.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+                                              [customHeader.expandButon.trailingAnchor constraintEqualToAnchor:customHeader.trailingAnchor constant:-20],
+                                              [customHeader.expandButon.centerYAnchor constraintEqualToAnchor:customHeader.centerYAnchor],
+                                              [customHeader.expandButon.heightAnchor constraintEqualToConstant:35],
+                                              [customHeader.expandButon.widthAnchor constraintEqualToConstant:35]
+                                              ]];
     
+    UILabel* alphabetLetter = [[UILabel alloc] init];
+    [customHeader addSubview:alphabetLetter];
+    alphabetLetter.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+                                              [alphabetLetter.leadingAnchor constraintEqualToAnchor:customHeader.leadingAnchor constant:25],
+                                              [alphabetLetter.centerYAnchor constraintEqualToAnchor:customHeader.centerYAnchor],
+                                              [alphabetLetter.heightAnchor constraintEqualToConstant:23],
+                                              [alphabetLetter.widthAnchor constraintEqualToConstant:23]
+                                              ]];
     
-    customHeader.textLabel.text = [NSString stringWithFormat:@"%@  contacts:%@", sec.sectionName, @([sec.items count])];
+    alphabetLetter.text = [NSString stringWithFormat:@"%@", sec.sectionName];
+    alphabetLetter.textColor = [UIColor blackColor];
+    alphabetLetter.font = [UIFont fontWithName:@"Helvetica-Bold" size:17];
+    customHeader.alphabetLetter = alphabetLetter;
+    
+    UILabel* contactsAmount = [[UILabel alloc] init];
+    [customHeader addSubview:contactsAmount];
+    contactsAmount.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+                                              [contactsAmount.leadingAnchor constraintEqualToAnchor:alphabetLetter.trailingAnchor constant:10],
+                                              [contactsAmount.centerYAnchor constraintEqualToAnchor:customHeader.centerYAnchor],
+                                              [contactsAmount.heightAnchor constraintEqualToConstant:35],
+                                              [contactsAmount.widthAnchor constraintEqualToConstant:100]
+                                              ]];
+    
+    contactsAmount.text = [NSString stringWithFormat:@"contacts:%@",  @([sec.items count])];
+    contactsAmount.textColor= [UIColor colorWithRed:(153/255.0) green:(153/255.0) blue:(153/255.0) alpha:1];
+    customHeader.contactsAmount = contactsAmount;
+    
     customHeader.section = section;
     customHeader.listener = self;
     
@@ -224,6 +268,10 @@ static NSString* headerIdentifier = @"Header";
     
     NSString* contactFullName = [[section.items objectAtIndex:indexPath.row] name];
     
+    UIView *bgColorView = [[UIView alloc] init];
+    bgColorView.backgroundColor = [UIColor colorWithRed:168 green:246 blue:254 alpha:1];
+    [cell setSelectedBackgroundView:bgColorView];
+    
     cell.infLabel.text = [NSString stringWithFormat:@"%@", contactFullName];
     
     return cell;
@@ -244,6 +292,8 @@ static NSString* headerIdentifier = @"Header";
         
         [section.items removeObjectAtIndex:indexPath.row];
         
+        [self.sectionsArray removeObject:section];
+        
         [self.tableView reloadData];
     }
 }
@@ -258,7 +308,7 @@ static NSString* headerIdentifier = @"Header";
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     SectionName* section = [self.sectionsArray objectAtIndex:indexPath.section];
     ContactTableItem* contactItem = [section.items objectAtIndex:indexPath.row];
-    
+
     CNContact* contact = [self.contactsById objectForKey:contactItem.identifier];
     NSString* phone = [[[contact.phoneNumbers firstObject] value] valueForKey:@"digits"];
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Contact info."
@@ -277,7 +327,7 @@ static NSString* headerIdentifier = @"Header";
 #pragma mark - CustomHeaderViewListener
 
 - (void) didTapOnHeaderView:(CustomHeaderView *)header {
-
+    
     BOOL state = [self.sectionsExpendedState[header.section] boolValue];
     self.sectionsExpendedState[header.section] = @(!state);
 
@@ -290,6 +340,10 @@ static NSString* headerIdentifier = @"Header";
             [paths addObject:path];
         }
         [self.tableView insertRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationAutomatic];
+        [header.expandButon setImage:[UIImage imageNamed:@"arrow_down"] forState:UIControlStateNormal];
+        header.alphabetLetter.textColor = [UIColor blackColor];
+        header.contactsAmount.textColor = [UIColor colorWithRed:(153/255.0) green:(153/255.0) blue:(153/255.0) alpha:1];
+        
     } else {
         NSMutableArray* paths = [NSMutableArray array];
         for (int i = 0; i < [section.items count]; i++) {
@@ -298,6 +352,9 @@ static NSString* headerIdentifier = @"Header";
             }
 
         [self.tableView deleteRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationAutomatic];
+        [header.expandButon setImage:[UIImage imageNamed:@"arrow_up"] forState:UIControlStateNormal];
+        header.alphabetLetter.textColor = [UIColor colorWithRed:(217/255.0) green:(145/255.0) blue:(0/255.0) alpha:1];
+        header.contactsAmount.textColor = [UIColor colorWithRed:(217/255.0) green:(145/255.0) blue:(0/255.0) alpha:1];
 }
 }
 
@@ -311,7 +368,7 @@ static NSString* headerIdentifier = @"Header";
     ContactTableItem* contactItem = [section.items objectAtIndex:path.row];
     CNContact* contact = [self.contactsById objectForKey:contactItem.identifier];
     
-    UIImage* photo = contact.imageDataAvailable ? [[UIImage alloc] initWithData:contact.imageData] : nil;
+    UIImage* photo = contact.imageDataAvailable ? [[UIImage alloc] initWithData:contact.imageData] : [UIImage imageNamed:@"noPhoto"];
     
     ContactInfoViewController* contactInfo = [[ContactInfoViewController alloc] initWithNibName:@"ContactInfoViewController" bundle:nil];
     contactInfo.lastName = contact.familyName;

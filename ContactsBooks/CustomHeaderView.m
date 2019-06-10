@@ -16,12 +16,16 @@
 - (instancetype)initWithReuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithReuseIdentifier:reuseIdentifier];
     if (self) {
-
+        
+        
+        
+        self.backgroundView.backgroundColor = [UIColor colorWithRed:223 green:223 blue:223 alpha:1];
         self.expandButon = [UIButton buttonWithType:UIButtonTypeCustom];
-        self.expandButon.frame = CGRectMake(300, 10, 35, 35);
-        self.expandButon.backgroundColor = [UIColor greenColor];
+        [self.expandButon setImage:[UIImage imageNamed:@"arrow_down"] forState:UIControlStateNormal];
+        self.expandButon.backgroundColor = [UIColor whiteColor];
         [self.expandButon addTarget:self action:@selector(expandRows:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:self.expandButon];
+        
     }
     return self;
 }

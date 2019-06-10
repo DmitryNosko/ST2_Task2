@@ -1,47 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="70" id="KGk-i7-Jjw" customClass="CustomTableViewCell">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="70"/>
+            <rect key="frame" x="0.0" y="0.0" width="318" height="70"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="69.5"/>
+                <rect key="frame" x="0.0" y="0.0" width="318" height="69.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b6B-Xo-Z3v">
-                        <rect key="frame" x="16" y="24" width="202" height="21"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b6B-Xo-Z3v">
+                        <rect key="frame" x="25" y="27" width="42" height="20.5"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zKa-fu-bmc">
-                        <rect key="frame" x="242" y="19" width="67" height="30"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <state key="normal" title="but"/>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uT3-ez-Rev">
+                        <rect key="frame" x="274" y="25" width="24" height="24.5"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="24" id="Jb6-by-93G"/>
+                            <constraint firstAttribute="width" constant="24" id="eLl-R7-JtL"/>
+                        </constraints>
+                        <state key="normal" title="infoBut" image="info"/>
                         <connections>
-                            <action selector="pushToInfoButton:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="Qu3-rk-GPR"/>
+                            <action selector="pushToInfoButton:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="xGT-3J-gVz"/>
                         </connections>
                     </button>
                 </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="uT3-ez-Rev" secondAttribute="trailing" constant="20" id="2zj-TD-EAW"/>
+                    <constraint firstItem="b6B-Xo-Z3v" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="25" id="Ctv-g6-mCF"/>
+                    <constraint firstItem="b6B-Xo-Z3v" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="27" id="J9W-LM-1lL"/>
+                    <constraint firstAttribute="bottom" secondItem="uT3-ez-Rev" secondAttribute="bottom" constant="25" id="MSL-s3-Yhf"/>
+                    <constraint firstAttribute="bottom" secondItem="b6B-Xo-Z3v" secondAttribute="bottom" constant="27" id="YaT-iJ-9gm"/>
+                    <constraint firstItem="uT3-ez-Rev" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="25" id="lOo-nT-bGm"/>
+                </constraints>
             </tableViewCellContentView>
-            <viewLayoutGuide key="safeArea" id="aW0-zy-SZf"/>
             <connections>
                 <outlet property="infLabel" destination="b6B-Xo-Z3v" id="1GG-7I-aAO"/>
-                <outlet property="infoButton" destination="zKa-fu-bmc" id="qPM-ew-ue5"/>
+                <outlet property="infoBut" destination="uT3-ez-Rev" id="kKf-yn-ek9"/>
             </connections>
-            <point key="canvasLocation" x="34" y="96"/>
+            <point key="canvasLocation" x="33" y="96"/>
         </tableViewCell>
     </objects>
+    <resources>
+        <image name="info" width="22" height="22"/>
+    </resources>
 </document>

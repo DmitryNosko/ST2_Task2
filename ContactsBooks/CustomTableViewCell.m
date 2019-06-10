@@ -14,8 +14,8 @@
     
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        [self.infoButton addTarget:self action:@selector(pushToInfoButton:) forControlEvents:UIControlEventTouchUpInside];
-        [self.contentView addSubview:self.infoButton];
+        [self.infoBut addTarget:self action:@selector(pushToInfoButton:) forControlEvents:UIControlEventTouchUpInside];
+        [self.contentView addSubview:self.infoBut];
     }
     return self;
 }
@@ -28,7 +28,8 @@
     [super setSelected:selected animated:animated];
 }
 
-- (IBAction)pushToInfoButton:(id)sender {
+
+- (void) pushToInfoButton:(id)sender {
     if ([self.listener respondsToSelector:@selector(didTapOnCustomViewCell:)]) {
         [self.listener didTapOnCustomViewCell:self];
     }

@@ -18,4 +18,7 @@
 @property (weak, nonatomic) id<CustomHeaderViewListener> listener;
 @property (assign, nonatomic) NSInteger section;
 @property (strong, nonatomic) UIButton* expandButon;
+@property (assign, nonatomic) BOOL isTapped;
+@property (strong, nonatomic) UILabel* alphabetLetter;
+@property (strong, nonatomic) UILabel* contactsAmount;
 @end

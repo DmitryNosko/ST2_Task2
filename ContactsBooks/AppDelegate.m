@@ -20,6 +20,7 @@
 
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     MainContactsViewController* mainVc = [[MainContactsViewController alloc] initWithNibName:@"MainContactsViewController" bundle:nil];
+    UINavigationBar.appearance.barTintColor = [UIColor whiteColor];
     UINavigationController* nc = [[UINavigationController alloc] initWithRootViewController:mainVc];
     [self.window setRootViewController:nc];
     [self.window makeKeyAndVisible];
