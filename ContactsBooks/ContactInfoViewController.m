@@ -14,6 +14,7 @@
 
 static NSString* identifier = @"Cell";
 static NSString* const TITLE_NAME = @"Контакты";
+static NSString* const BACK_BUTTON_IMAGE = @"arrow_left";
 
 @implementation ContactInfoViewController
 
@@ -38,7 +39,7 @@ static NSString* const TITLE_NAME = @"Контакты";
     self.tableView.delegate = self;
     
     [self.navigationItem setHidesBackButton:YES animated:YES];
-    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"arrow_left"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:BACK_BUTTON_IMAGE] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]
                                                               style:UIBarButtonItemStyleDone target:self
                                                              action:@selector(popToRootView:)];
     self.navigationItem.leftBarButtonItem = backButton;
@@ -69,11 +70,10 @@ static NSString* const TITLE_NAME = @"Контакты";
 
 - (void) setCustomNavigationBackButton
 {
-    UIImage *backBtn = [UIImage imageNamed:@"arrow_left"];
+    UIImage *backBtn = [UIImage imageNamed:BACK_BUTTON_IMAGE];
     backBtn = [backBtn imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     [self.navigationItem setBackBarButtonItem:[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil]];
     self.navigationController.navigationBar.backIndicatorImage = backBtn;
-//    self.navigationController.navigationBar.topItem.title = @"";
     self.navigationController.navigationBar.backIndicatorTransitionMaskImage = backBtn;
 }
 
@@ -95,7 +95,6 @@ static NSString* const TITLE_NAME = @"Контакты";
     }
     
     NSArray* phonesNumbers = [[self.phoneNumbers valueForKey:@"value"] valueForKeyPath:@"digits"];
-    
     cell.textLabel.text = [phonesNumbers objectAtIndex:indexPath.row];
     
     return cell;
@@ -116,7 +115,6 @@ static NSString* const TITLE_NAME = @"Контакты";
 
     UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.bounds.size.width, 300)];
     headerView.backgroundColor = [UIColor whiteColor];
-    
     headerView.layer.borderWidth = 0.5f;
     headerView.layer.borderColor = [UIColor colorWithRed:(223/255.0) green:(223/255.0) blue:(223/255.0) alpha:1].CGColor;
     
@@ -126,7 +124,6 @@ static NSString* const TITLE_NAME = @"Контакты";
     
     UILabel* fullName = [[UILabel alloc] init];
     [headerView addSubview:fullName];
-    
     fullName.font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:23];
     fullName.text = [NSString stringWithFormat:@"%@ %@", self.lastName, self.firstName];
     [fullName setTextAlignment:NSTextAlignmentCenter];

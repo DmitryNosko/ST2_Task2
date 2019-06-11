@@ -31,6 +31,7 @@
 
 static NSString* cellIdentifier = @"Cell";
 static NSString* headerIdentifier = @"Header";
+static NSString* const TITLE_NAME = @"Контакты";
 
 @implementation MainContactsViewController
 
@@ -46,26 +47,24 @@ static NSString* headerIdentifier = @"Header";
                                               ]];
 }
 
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"Контакты";
+    self.title = TITLE_NAME;
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
     
     self.russianAlphabet = [NSSet setWithObjects:@"а",@"б",@"в",@"г",@"д",@"е",@"ё",@"ж",@"з",@"и",@"й",@"к",@"л",@"м",@"н",@"о",
                                                 @"п",@"р",@"с",@"т",@"у",@"ф",@"х",@"ц",@"ч",@"щ",@"ъ",@"ы", @"ь",@"э",@"ю", @"я",nil];
+    
     self.groupOfContacts = [NSMutableArray array];
     
     UINib* nib = [UINib nibWithNibName:@"CustomTableViewCell" bundle:nil];
     [self.tableView registerNib:nib forCellReuseIdentifier:cellIdentifier];
     
     [self checkPermissionForCNContacts];
-    
-    
-    
-    
-    
+
 }
 
 - (void) showContactsView {
@@ -126,30 +125,6 @@ static NSString* headerIdentifier = @"Header";
     }
 }
 
-- (void) showNoAccessView {
-    UIView* noAccessView = [[UIView alloc] init];
-    [self.view addSubview:noAccessView];
-    noAccessView.translatesAutoresizingMaskIntoConstraints = NO;
-    [NSLayoutConstraint activateConstraints:@[
-                                              [noAccessView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-                                              [noAccessView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-                                              [noAccessView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-                                              [noAccessView.topAnchor constraintEqualToAnchor:self.view.topAnchor]
-                                              ]];
-    
-    noAccessView.backgroundColor = [UIColor colorWithRed:(249/255.0) green:(249/255.0) blue:(249/255.0) alpha:1];
-    
-    
-    UITextView* noAccessMesage = [[UITextView alloc] initWithFrame:CGRectMake(100, 500, 300, 100)];
-    [noAccessView addSubview:noAccessMesage];
-    
-    
-    noAccessMesage.backgroundColor = [UIColor colorWithRed:(249/255.0) green:(249/255.0) blue:(249/255.0) alpha:1];
-    [noAccessMesage setTextAlignment:NSTextAlignmentCenter];
-    [noAccessMesage setFont:[UIFont fontWithName:@"ArialMT" size:17]];
-    noAccessMesage.text = @"Доступ к списку контактов запрещен. Войдите в Settings и разрешите доступ.";
-    noAccessMesage.editable = NO;
-}
 
 - (void) getAllContacts {
     if ([CNContactStore class]) {
@@ -222,6 +197,40 @@ static NSString* headerIdentifier = @"Header";
     
 }
 
+#pragma mark - NoAccessView
+
+- (void) showNoAccessView {
+    UIView* noAccessView = [[UIView alloc] init];
+    [self.view addSubview:noAccessView];
+    noAccessView.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+                                              [noAccessView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+                                              [noAccessView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+                                              [noAccessView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+                                              [noAccessView.topAnchor constraintEqualToAnchor:self.view.topAnchor]
+                                              ]];
+    
+    noAccessView.backgroundColor = [UIColor colorWithRed:(249/255.0) green:(249/255.0) blue:(249/255.0) alpha:1];
+    
+    
+    UITextView* noAccessMesage = [[UITextView alloc] init];
+    [noAccessView addSubview:noAccessMesage];
+    noAccessMesage.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+                                              [noAccessMesage.centerXAnchor constraintEqualToAnchor:noAccessView.centerXAnchor],
+                                              [noAccessMesage.centerYAnchor constraintEqualToAnchor:noAccessView.centerYAnchor],
+                                              [noAccessMesage.heightAnchor constraintEqualToConstant:150],
+                                              [noAccessMesage.widthAnchor constraintEqualToConstant:300]
+                                              ]];
+    
+    
+    noAccessMesage.backgroundColor = [UIColor colorWithRed:(249/255.0) green:(249/255.0) blue:(249/255.0) alpha:1];
+    [noAccessMesage setTextAlignment:NSTextAlignmentCenter];
+    [noAccessMesage setFont:[UIFont fontWithName:@"AppleSDGothicNeo-Regular" size:17]];
+    noAccessMesage.text = @"Доступ к списку контактов запрещен. Войдите в Settings и разрешите доступ.";
+    noAccessMesage.editable = NO;
+}
+
 
 #pragma mark - UITableViewDataSourse
 
@@ -232,6 +241,7 @@ static NSString* headerIdentifier = @"Header";
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     
     SectionName* sec = [self.sectionsArray objectAtIndex:section];
+    
     CustomHeaderView* customHeader = [tableView dequeueReusableHeaderFooterViewWithIdentifier:headerIdentifier];
     customHeader.layer.borderWidth = 0.5f;
     customHeader.layer.borderColor = [UIColor colorWithRed:(223/255.0) green:(223/255.0) blue:(223/255.0) alpha:1].CGColor;
@@ -274,8 +284,8 @@ static NSString* headerIdentifier = @"Header";
     
     customHeader.section = section;
     customHeader.listener = self;
-    
     [self setUpHeaderCollor:customHeader];
+    
     return customHeader;
 }
 
@@ -378,22 +388,16 @@ static NSString* headerIdentifier = @"Header";
         [self.tableView insertRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationAutomatic];
         [header.expandButon setImage:[UIImage imageNamed:@"arrow_down"] forState:UIControlStateNormal];
     }
-    
 }
 
 - (void) setUpHeaderCollor:(CustomHeaderView*) header {
-    
     if (header.isExpanded) {
-
         header.alphabetLetter.textColor = [UIColor colorWithRed:(217/255.0) green:(145/255.0) blue:(0/255.0) alpha:1];
         header.contactsAmount.textColor = [UIColor colorWithRed:(217/255.0) green:(145/255.0) blue:(0/255.0) alpha:1];
-        
     } else {
         header.alphabetLetter.textColor = [UIColor blackColor];
         header.contactsAmount.textColor = [UIColor colorWithRed:(153/255.0) green:(153/255.0) blue:(153/255.0) alpha:1];
-        
     }
-    
 }
 
 #pragma mark - CustomTableViewCellListener
