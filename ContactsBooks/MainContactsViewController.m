@@ -226,7 +226,8 @@ static NSString* const TITLE_NAME = @"Контакты";
     
     noAccessMesage.backgroundColor = [UIColor colorWithRed:(249/255.0) green:(249/255.0) blue:(249/255.0) alpha:1];
     [noAccessMesage setTextAlignment:NSTextAlignmentCenter];
-    [noAccessMesage setFont:[UIFont fontWithName:@"AppleSDGothicNeo-Regular" size:17]];
+    [noAccessMesage setFont:[UIFont fontWithName:@"Optima-Regular" size:17]];
+    noAccessMesage.textColor = [UIColor blackColor];
     noAccessMesage.text = @"Доступ к списку контактов запрещен. Войдите в Settings и разрешите доступ.";
     noAccessMesage.editable = NO;
 }
@@ -344,6 +345,8 @@ static NSString* const TITLE_NAME = @"Контакты";
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     SectionName* section = [self.sectionsArray objectAtIndex:indexPath.section];
     ContactTableItem* contactItem = [section.items objectAtIndex:indexPath.row];
+    
+    [self setCellHighlitedBackColor:indexPath];
 
     CNContact* contact = [self.contactsById objectForKey:contactItem.identifier];
     NSString* phone = [[[contact.phoneNumbers firstObject] value] valueForKey:@"digits"];
@@ -357,6 +360,14 @@ static NSString* const TITLE_NAME = @"Контакты";
     [alert addAction:defaultAction];
     [self.navigationController presentViewController:alert animated:YES completion:nil];
     
+}
+
+#pragma mark - Set background color for cell
+
+- (void) setCellHighlitedBackColor:(NSIndexPath*) indexPath {
+    UIView *highlightedCellColor = [[UIView alloc] init];
+    highlightedCellColor.backgroundColor = [UIColor colorWithRed:(254/255.0) green:(246/255.0) blue:(230/255.0) alpha:1];
+    [[self.tableView cellForRowAtIndexPath:indexPath] setSelectedBackgroundView:highlightedCellColor];
 }
 
 #pragma mark - CustomHeaderViewListener

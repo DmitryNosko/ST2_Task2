@@ -25,10 +25,10 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uT3-ez-Rev">
-                        <rect key="frame" x="274" y="25" width="24" height="24.5"/>
+                        <rect key="frame" x="271" y="25" width="27" height="24.5"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="24" id="Jb6-by-93G"/>
-                            <constraint firstAttribute="width" constant="24" id="eLl-R7-JtL"/>
+                            <constraint firstAttribute="width" constant="27" id="BSd-Sy-d02"/>
+                            <constraint firstAttribute="height" constant="27" id="FAg-9A-5vY"/>
                         </constraints>
                         <state key="normal" title="infoBut" image="info"/>
                         <connections>
@@ -37,12 +37,12 @@
                     </button>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="trailing" secondItem="uT3-ez-Rev" secondAttribute="trailing" constant="20" id="2zj-TD-EAW"/>
-                    <constraint firstItem="b6B-Xo-Z3v" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="25" id="Ctv-g6-mCF"/>
-                    <constraint firstItem="b6B-Xo-Z3v" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="27" id="J9W-LM-1lL"/>
-                    <constraint firstAttribute="bottom" secondItem="uT3-ez-Rev" secondAttribute="bottom" constant="25" id="MSL-s3-Yhf"/>
-                    <constraint firstAttribute="bottom" secondItem="b6B-Xo-Z3v" secondAttribute="bottom" constant="27" id="YaT-iJ-9gm"/>
-                    <constraint firstItem="uT3-ez-Rev" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="25" id="lOo-nT-bGm"/>
+                    <constraint firstAttribute="bottom" secondItem="uT3-ez-Rev" secondAttribute="bottom" constant="25" id="7eY-CM-uUK"/>
+                    <constraint firstAttribute="bottom" secondItem="b6B-Xo-Z3v" secondAttribute="bottom" constant="27" id="E9L-YH-cgz"/>
+                    <constraint firstItem="b6B-Xo-Z3v" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="27" id="JVh-Hg-axH"/>
+                    <constraint firstAttribute="trailing" secondItem="uT3-ez-Rev" secondAttribute="trailing" constant="20" id="JpZ-57-Iuy"/>
+                    <constraint firstItem="uT3-ez-Rev" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="25" id="R73-ga-iiZ"/>
+                    <constraint firstItem="b6B-Xo-Z3v" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="25" id="y6e-Rn-0ek"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
