@@ -44,35 +44,31 @@ static NSString* headerIdentifier = @"Header";
                                               [self.tableView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
                                               [self.tableView.topAnchor constraintEqualToAnchor:self.view.topAnchor]
                                               ]];
-    
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"Contacts";
+    self.title = @"Контакты";
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
-   
     
-    self.russianAlphabet = [NSSet setWithObjects:@"а",@"б",@"в",@"г",@"д",@"е",@"ё",@"ж",@"з",@"и",@"й",@"к",@"л",@"м",@"н",@"о",@"п",@"р",@"с",@"т",@"у",@"ф",@"х",@"ц",@"ч",@"щ",@"ъ",@"ы", @"ь",@"э",@"ю", @"я",nil];
-    
+    self.russianAlphabet = [NSSet setWithObjects:@"а",@"б",@"в",@"г",@"д",@"е",@"ё",@"ж",@"з",@"и",@"й",@"к",@"л",@"м",@"н",@"о",
+                                                @"п",@"р",@"с",@"т",@"у",@"ф",@"х",@"ц",@"ч",@"щ",@"ъ",@"ы", @"ь",@"э",@"ю", @"я",nil];
     self.groupOfContacts = [NSMutableArray array];
+    
     UINib* nib = [UINib nibWithNibName:@"CustomTableViewCell" bundle:nil];
     [self.tableView registerNib:nib forCellReuseIdentifier:cellIdentifier];
     
-    CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+    [self checkPermissionForCNContacts];
     
-    if (status == CNAuthorizationStatusDenied || status == CNAuthorizationStatusRestricted) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Access to contacts." message:@"This app requires access to contacts." preferredStyle:UIAlertControllerStyleActionSheet];
-        [alert addAction:[UIAlertAction actionWithTitle:@"Go to Settings" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
-        }]];
-        [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-        [self presentViewController:alert animated:TRUE completion:nil];
-        return;
-    }
     
+    
+    
+    
+}
+
+- (void) showContactsView {
     [self getAllContacts];
     
     self.sectionsArray = [NSMutableArray array];
@@ -80,7 +76,7 @@ static NSString* headerIdentifier = @"Header";
     NSString* currentLetter = nil;
     
     for (CNContact* contact in self.groupOfContacts) {
-
+        
         NSString* groupName = contact.familyName.length == 0 ? contact.givenName : contact.familyName;
         
         NSString* firstLetter = [groupName substringToIndex:1];
@@ -109,15 +105,51 @@ static NSString* headerIdentifier = @"Header";
     for (int i = 0; i < [self.sectionsArray count]; i++) {
         [self.sectionsExpendedState addObject:@NO];
     }
-    
 }
 
-- (void) viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    self.title = @"Contacts";
-}
 
 #pragma mark - Contacts
+
+- (void)checkPermissionForCNContacts {
+    
+    switch ([CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts])
+    {
+        case CNAuthorizationStatusNotDetermined:
+        case CNAuthorizationStatusRestricted:
+        case CNAuthorizationStatusDenied:
+            [self showNoAccessView];
+            self.tableView.hidden = YES;
+            break;
+        case CNAuthorizationStatusAuthorized:
+            [self showContactsView];
+            break;
+    }
+}
+
+- (void) showNoAccessView {
+    UIView* noAccessView = [[UIView alloc] init];
+    [self.view addSubview:noAccessView];
+    noAccessView.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+                                              [noAccessView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+                                              [noAccessView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+                                              [noAccessView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+                                              [noAccessView.topAnchor constraintEqualToAnchor:self.view.topAnchor]
+                                              ]];
+    
+    noAccessView.backgroundColor = [UIColor colorWithRed:(249/255.0) green:(249/255.0) blue:(249/255.0) alpha:1];
+    
+    
+    UITextView* noAccessMesage = [[UITextView alloc] initWithFrame:CGRectMake(100, 500, 300, 100)];
+    [noAccessView addSubview:noAccessMesage];
+    
+    
+    noAccessMesage.backgroundColor = [UIColor colorWithRed:(249/255.0) green:(249/255.0) blue:(249/255.0) alpha:1];
+    [noAccessMesage setTextAlignment:NSTextAlignmentCenter];
+    [noAccessMesage setFont:[UIFont fontWithName:@"ArialMT" size:17]];
+    noAccessMesage.text = @"Доступ к списку контактов запрещен. Войдите в Settings и разрешите доступ.";
+    noAccessMesage.editable = NO;
+}
 
 - (void) getAllContacts {
     if ([CNContactStore class]) {
@@ -175,7 +207,6 @@ static NSString* headerIdentifier = @"Header";
 }
 
 - (void) deleteContact:(CNContact*) contactToDelte {
-    
     [self.adressBook requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
         if (granted == YES) {
             
@@ -183,9 +214,7 @@ static NSString* headerIdentifier = @"Header";
                 NSLog(@"error fetching contacts %@", error);
             } else {
                 CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
-                
                 [saveRequest deleteContact:[contactToDelte mutableCopy]];
-                
                 [self.adressBook executeSaveRequest:saveRequest error:nil];
             }
         }
@@ -239,13 +268,14 @@ static NSString* headerIdentifier = @"Header";
                                               [contactsAmount.widthAnchor constraintEqualToConstant:100]
                                               ]];
     
-    contactsAmount.text = [NSString stringWithFormat:@"contacts:%@",  @([sec.items count])];
+    contactsAmount.text = [NSString stringWithFormat:@"контактов:%@",  @([sec.items count])];
     contactsAmount.textColor= [UIColor colorWithRed:(153/255.0) green:(153/255.0) blue:(153/255.0) alpha:1];
     customHeader.contactsAmount = contactsAmount;
     
     customHeader.section = section;
     customHeader.listener = self;
     
+    [self setUpHeaderCollor:customHeader];
     return customHeader;
 }
 
@@ -264,8 +294,9 @@ static NSString* headerIdentifier = @"Header";
     }
     
     cell.listener = self;
-    SectionName* section = [self.sectionsArray objectAtIndex:indexPath.section];
     
+    SectionName* section = [self.sectionsArray objectAtIndex:indexPath.section];
+
     NSString* contactFullName = [[section.items objectAtIndex:indexPath.row] name];
     
     UIView *bgColorView = [[UIView alloc] init];
@@ -285,15 +316,10 @@ static NSString* headerIdentifier = @"Header";
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         
         SectionName* section = [self.sectionsArray objectAtIndex:indexPath.section];
-        
         ContactTableItem* contactItem = [section.items objectAtIndex:indexPath.row];
-        
         [self deleteContact:[self.contactsById objectForKey:contactItem.identifier]];
-        
         [section.items removeObjectAtIndex:indexPath.row];
-        
         [self.sectionsArray removeObject:section];
-        
         [self.tableView reloadData];
     }
 }
@@ -318,9 +344,8 @@ static NSString* headerIdentifier = @"Header";
     UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
                                                           handler:^(UIAlertAction * action) {}];
     
-
     [alert addAction:defaultAction];
-    [self presentViewController:alert animated:YES completion:nil];
+    [self.navigationController presentViewController:alert animated:YES completion:nil];
     
 }
 
@@ -330,32 +355,45 @@ static NSString* headerIdentifier = @"Header";
     
     BOOL state = [self.sectionsExpendedState[header.section] boolValue];
     self.sectionsExpendedState[header.section] = @(!state);
+    header.isExpanded = !state;
+    
+    [self setUpHeaderExpanding:header];
+    [self setUpHeaderCollor:header];
+}
 
+- (void) setUpHeaderExpanding:(CustomHeaderView*) header {
+    
     SectionName* section = [self.sectionsArray objectAtIndex:header.section];
-
-    if (state) {
-        NSMutableArray* paths = [NSMutableArray array];
-        for (int i = 0; i < [section.items count]; i++) {
-            NSIndexPath* path = [NSIndexPath indexPathForRow:i inSection:header.section];
-            [paths addObject:path];
-        }
+    
+    NSMutableArray* paths = [NSMutableArray array];
+    for (int i = 0; i < [section.items count]; i++) {
+        NSIndexPath* path = [NSIndexPath indexPathForRow:i inSection:header.section];
+        [paths addObject:path];
+    }
+    
+    if (header.isExpanded) {
+        [self.tableView deleteRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationAutomatic];
+        [header.expandButon setImage:[UIImage imageNamed:@"arrow_up"] forState:UIControlStateNormal];
+    } else {
         [self.tableView insertRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationAutomatic];
         [header.expandButon setImage:[UIImage imageNamed:@"arrow_down"] forState:UIControlStateNormal];
+    }
+    
+}
+
+- (void) setUpHeaderCollor:(CustomHeaderView*) header {
+    
+    if (header.isExpanded) {
+
+        header.alphabetLetter.textColor = [UIColor colorWithRed:(217/255.0) green:(145/255.0) blue:(0/255.0) alpha:1];
+        header.contactsAmount.textColor = [UIColor colorWithRed:(217/255.0) green:(145/255.0) blue:(0/255.0) alpha:1];
+        
+    } else {
         header.alphabetLetter.textColor = [UIColor blackColor];
         header.contactsAmount.textColor = [UIColor colorWithRed:(153/255.0) green:(153/255.0) blue:(153/255.0) alpha:1];
         
-    } else {
-        NSMutableArray* paths = [NSMutableArray array];
-        for (int i = 0; i < [section.items count]; i++) {
-            NSIndexPath* path = [NSIndexPath indexPathForRow:i inSection:header.section];
-            [paths addObject:path];
-            }
-
-        [self.tableView deleteRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationAutomatic];
-        [header.expandButon setImage:[UIImage imageNamed:@"arrow_up"] forState:UIControlStateNormal];
-        header.alphabetLetter.textColor = [UIColor colorWithRed:(217/255.0) green:(145/255.0) blue:(0/255.0) alpha:1];
-        header.contactsAmount.textColor = [UIColor colorWithRed:(217/255.0) green:(145/255.0) blue:(0/255.0) alpha:1];
-}
+    }
+    
 }
 
 #pragma mark - CustomTableViewCellListener
@@ -375,6 +413,7 @@ static NSString* headerIdentifier = @"Header";
     contactInfo.firstName = contact.givenName;
     contactInfo.phoneNumbers = contact.phoneNumbers;
     contactInfo.image = photo;
+    
     [self.navigationController pushViewController:contactInfo animated:YES];
 }
 

@@ -19,6 +19,7 @@
 @property (assign, nonatomic) NSInteger section;
 @property (strong, nonatomic) UIButton* expandButon;
 @property (assign, nonatomic) BOOL isTapped;
+@property (assign, nonatomic) BOOL isExpanded;
 @property (strong, nonatomic) UILabel* alphabetLetter;
 @property (strong, nonatomic) UILabel* contactsAmount;
 @end

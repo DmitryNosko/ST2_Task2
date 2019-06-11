@@ -13,6 +13,7 @@
 @end
 
 static NSString* identifier = @"Cell";
+static NSString* const TITLE_NAME = @"Контакты";
 
 @implementation ContactInfoViewController
 
@@ -29,30 +30,50 @@ static NSString* identifier = @"Cell";
                                               ]];
 }
 
-- (void)viewDidLoad {
+- (void) viewDidLoad {
     [super viewDidLoad];
-    self.title = @"Contacts";
+    self.title = TITLE_NAME;
     self.view.backgroundColor = [UIColor whiteColor];
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
-    self.tableView.userInteractionEnabled = NO;
-    self.navigationController.navigationBar.topItem.title = @"";
     
-    [self setCustomNavigationBackButton];
-    if ([self.phoneNumbers count] <= 4) {
-        self.tableView.scrollEnabled = NO;
-    }
-    
+    [self.navigationItem setHidesBackButton:YES animated:YES];
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"arrow_left"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]
+                                                              style:UIBarButtonItemStyleDone target:self
+                                                             action:@selector(popToRootView:)];
+    self.navigationItem.leftBarButtonItem = backButton;
+
+}
+
+- (void) viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    self.tableView.scrollEnabled = ![self areAllCellsVisible];
+
+}
+
+#pragma mark - Navigation
+
+- (void)popToRootView:(id) sender {
+    [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
+#pragma mark - Cells visibility check
+
+- (BOOL) areAllCellsVisible {
+    NSUInteger visibleCount = [self.tableView.visibleCells count];
+    NSUInteger allCount = [self.phoneNumbers count];
+    return allCount == visibleCount;
 }
 
 #pragma mark - CustomBackButton
 
-- (void)setCustomNavigationBackButton
+- (void) setCustomNavigationBackButton
 {
     UIImage *backBtn = [UIImage imageNamed:@"arrow_left"];
     backBtn = [backBtn imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     [self.navigationItem setBackBarButtonItem:[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil]];
     self.navigationController.navigationBar.backIndicatorImage = backBtn;
+//    self.navigationController.navigationBar.topItem.title = @"";
     self.navigationController.navigationBar.backIndicatorTransitionMaskImage = backBtn;
 }
 
@@ -118,14 +139,16 @@ static NSString* identifier = @"Cell";
                                               [fullName.widthAnchor constraintEqualToConstant:300]
                                               ]];
     
-    
-
     return headerView;
+}
+
+- (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath {
+    return NO;
 }
 
 #pragma mark - DrawAvatar
 
-- (UIImage*)circularScaleAndCropImage:(UIImage*)image frame:(CGRect)frame {
+- (UIImage*) circularScaleAndCropImage:(UIImage*)image frame:(CGRect)frame {
 
     UIGraphicsBeginImageContextWithOptions(CGSizeMake(frame.size.width, frame.size.height), NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();

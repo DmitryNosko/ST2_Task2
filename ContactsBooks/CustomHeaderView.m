@@ -21,8 +21,9 @@
         
         self.backgroundView.backgroundColor = [UIColor colorWithRed:223 green:223 blue:223 alpha:1];
         self.expandButon = [UIButton buttonWithType:UIButtonTypeCustom];
-        [self.expandButon setImage:[UIImage imageNamed:@"arrow_down"] forState:UIControlStateNormal];
-        self.expandButon.backgroundColor = [UIColor whiteColor];
+
+        [self.expandButon setImage:[UIImage imageNamed:@"arrow_down"]forState:UIControlStateNormal];
+        self.expandButon.backgroundColor = [UIColor clearColor];
         [self.expandButon addTarget:self action:@selector(expandRows:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:self.expandButon];
         
